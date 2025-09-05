@@ -3,7 +3,17 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Marine Product Support</title>
+    <title>Corvus Product Support</title>
+    
+    <!-- PWA Meta Tags -->
+    <meta name="description" content="Corvus Product Support - Get help with your marine products">
+    <meta name="theme-color" content="#223D4B">
+    <link rel="manifest" href="manifest.json">
+    <link rel="apple-touch-icon" href="icon-192.png">
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+    <meta name="apple-mobile-web-app-title" content="Corvus Support">
+    
     <style>
         * {
             margin: 0;
@@ -13,7 +23,7 @@
 
         body {
             font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
-            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            background: #223D4B;
             min-height: 100vh;
             padding: 20px;
             display: flex;
@@ -32,8 +42,9 @@
         }
 
         .header {
-            background: linear-gradient(135deg, #4facfe 0%, #00f2fe 100%);
-            color: white;
+            background-color: #223D4B !important;
+            background-image: none !important;
+            color: #FF8E18 !important;
             padding: 40px 20px 20px;
             text-align: center;
             position: relative;
@@ -75,12 +86,12 @@
 
         .main-button {
             background: white;
-            border: 2px solid #e1e8ed;
+            border: 2px solid #D1D3D1;
             padding: 20px;
             border-radius: 15px;
             font-size: 18px;
             font-weight: 500;
-            color: #333;
+            color: #505759;
             cursor: pointer;
             transition: all 0.3s ease;
             text-align: center;
@@ -89,8 +100,9 @@
 
         .main-button:hover {
             transform: translateY(-2px);
-            box-shadow: 0 5px 20px rgba(0,0,0,0.1);
-            border-color: #4facfe;
+            box-shadow: 0 5px 20px rgba(255, 142, 24, 0.3);
+            border-color: #FF8E18;
+            color: #223D4B;
         }
 
         .action-buttons {
@@ -116,25 +128,25 @@
         }
 
         .call-button {
-            background: linear-gradient(135deg, #11998e 0%, #38ef7d 100%);
+            background: linear-gradient(135deg, #4F8D33 0%, #4F8D33 100%);
             color: white;
-            box-shadow: 0 5px 15px rgba(17, 153, 142, 0.3);
+            box-shadow: 0 5px 15px rgba(79, 141, 51, 0.3);
         }
 
         .call-button:hover {
             transform: translateY(-2px);
-            box-shadow: 0 8px 25px rgba(17, 153, 142, 0.4);
+            box-shadow: 0 8px 25px rgba(79, 141, 51, 0.4);
         }
 
         .email-button {
-            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            background: linear-gradient(135deg, #00A9CE 0%, #223D4B 100%);
             color: white;
-            box-shadow: 0 5px 15px rgba(102, 126, 234, 0.3);
+            box-shadow: 0 5px 15px rgba(0, 169, 206, 0.3);
         }
 
         .email-button:hover {
             transform: translateY(-2px);
-            box-shadow: 0 8px 25px rgba(102, 126, 234, 0.4);
+            box-shadow: 0 8px 25px rgba(0, 169, 206, 0.4);
         }
 
         .product-title {
@@ -153,6 +165,43 @@
 
         .hidden {
             display: none;
+        }
+
+        /* Install prompt styles */
+        .install-prompt {
+            position: fixed;
+            bottom: 20px;
+            left: 20px;
+            right: 20px;
+            background: #FF8E18;
+            color: white;
+            padding: 15px;
+            border-radius: 10px;
+            box-shadow: 0 5px 15px rgba(0,0,0,0.2);
+            display: none;
+            align-items: center;
+            justify-content: space-between;
+            z-index: 1000;
+        }
+
+        .install-button {
+            background: white;
+            color: #FF8E18;
+            border: none;
+            padding: 8px 16px;
+            border-radius: 5px;
+            cursor: pointer;
+            font-weight: 600;
+        }
+
+        .close-prompt {
+            background: none;
+            border: none;
+            color: white;
+            font-size: 20px;
+            cursor: pointer;
+            padding: 0;
+            margin-left: 10px;
         }
 
         /* Mobile responsiveness */
@@ -176,6 +225,15 @@
     </style>
 </head>
 <body>
+    <!-- Install Prompt -->
+    <div id="installPrompt" class="install-prompt">
+        <span>Installer Corvus Support som app på telefonen din!</span>
+        <div>
+            <button id="installButton" class="install-button">Installer</button>
+            <button id="closePrompt" class="close-prompt">×</button>
+        </div>
+    </div>
+
     <div class="app-container">
         <!-- Main Menu -->
         <div id="mainMenu">
@@ -229,6 +287,7 @@
 
     <script>
         let currentProduct = '';
+        let deferredPrompt;
 
         function showProductPage(productName) {
             currentProduct = productName;
@@ -262,6 +321,39 @@ Best regards,
             
             const mailtoLink = `mailto:customerservice@corvusenergy.com?subject=${subject}&body=${body}`;
             window.location.href = mailtoLink;
+        }
+
+        // PWA Install functionality
+        window.addEventListener('beforeinstallprompt', (e) => {
+            e.preventDefault();
+            deferredPrompt = e;
+            document.getElementById('installPrompt').style.display = 'flex';
+        });
+
+        document.getElementById('installButton').addEventListener('click', async () => {
+            if (deferredPrompt) {
+                deferredPrompt.prompt();
+                const { outcome } = await deferredPrompt.userChoice;
+                deferredPrompt = null;
+                document.getElementById('installPrompt').style.display = 'none';
+            }
+        });
+
+        document.getElementById('closePrompt').addEventListener('click', () => {
+            document.getElementById('installPrompt').style.display = 'none';
+        });
+
+        // Register service worker
+        if ('serviceWorker' in navigator) {
+            window.addEventListener('load', () => {
+                navigator.serviceWorker.register('sw.js')
+                    .then((registration) => {
+                        console.log('SW registered: ', registration);
+                    })
+                    .catch((registrationError) => {
+                        console.log('SW registration failed: ', registrationError);
+                    });
+            });
         }
 
         // Add some mobile touch feedback
